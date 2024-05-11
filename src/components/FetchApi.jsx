@@ -3,13 +3,29 @@ import { Box, Grid, Typography, Rating } from "@mui/material";
 
 function FetchApi() {
   const [fetchData, setFetchData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [errors, setErrors] = useState(false);
+
+  // here giving ratings and articles static
   const ratings = 4.5;
   const articleCount = 100;
 
   async function getData() {
-    const res = await fetch("https://api.github.com/users");
-    setFetchData(await res.json());
-    console.log(fetchData);
+    try {
+      setErrors(false)
+      const res = await fetch("https://api.github.com/users");
+      if (!res.ok) {
+        throw new Error("Failed to fetch data");
+      }
+      setFetchData(await res.json());
+      console.log(fetchData);
+      setLoading(false)
+      
+    } catch (error) {
+      console.log("error Handling =>>",error);
+      setErrors(true)
+      setLoading(false)
+    }
   }
 
   // function  getData(){
@@ -21,10 +37,22 @@ function FetchApi() {
     getData();
   }, []);
 
+  if(loading){
+    return(<Typography variant="h3" color='green'>Loading...</Typography>)
+  }
+   
+  if(errors){
+    return(<Typography variant="h3" color='red'>Error-404</Typography>)
+  }
+
   return (
     <>
       <Box>
-        <Typography variant="h3" color='red' textAlign='center' margin='20px' ><u><i>List of GitHub Users</i></u></Typography>
+        <Typography variant="h3" color="red" textAlign="center" margin="20px">
+          <u>
+            <i>List of GitHub Users</i>
+          </u>
+        </Typography>
         <Grid container justifyContent="center" spacing={2}>
           {fetchData.map((data) => (
             <Grid
@@ -43,7 +71,7 @@ function FetchApi() {
                 backgroundColor: "#fff",
               }}
             >
-              <Typography variant="h5" gutterBottom color='blue'>
+              <Typography variant="h5" gutterBottom color="blue">
                 {data.login}
               </Typography>
               <Typography variant="body1">
@@ -87,5 +115,4 @@ function FetchApi() {
     </>
   );
 }
-
 export default FetchApi;
